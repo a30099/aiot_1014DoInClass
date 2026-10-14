@@ -1,13 +1,13 @@
 /* ==========================================================================
-   50 Startups Profit Prediction Dashboard - Design System
-   Modern Glassmorphic Dark Theme with Vibrant Accents
+   50 Startups & Boston Housing Interactive Platform - Design System
+   Modern Glassmorphic Dark Theme with Vibrant Accents & Dual-Problem Support
    ========================================================================== */
 
 :root {
   --bg-primary: #0a0e17;
   --bg-secondary: #111827;
-  --bg-card: rgba(17, 24, 39, 0.75);
-  --bg-card-hover: rgba(31, 41, 55, 0.85);
+  --bg-card: rgba(17, 24, 39, 0.78);
+  --bg-card-hover: rgba(31, 41, 55, 0.88);
   --bg-glass: rgba(255, 255, 255, 0.03);
   --border-color: rgba(255, 255, 255, 0.08);
   --border-focus: #3b82f6;
@@ -25,6 +25,7 @@
 
   --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   --gradient-cyan: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  --gradient-amber: linear-gradient(135deg, #f59e0b 0%, #f43f5e 100%);
   --gradient-glow: radial-gradient(circle at top center, rgba(59, 130, 246, 0.15), transparent 70%);
 
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -91,11 +92,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 2rem;
-  background: rgba(10, 14, 23, 0.85);
+  padding: 0.85rem 2rem;
+  background: rgba(10, 14, 23, 0.9);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .nav-brand {
@@ -136,16 +139,54 @@ body {
   font-weight: 600;
 }
 
+/* Problem Selector Dropdown (加 1 分) */
+.problem-selector-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(17, 24, 39, 0.9);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+}
+
+.problem-label {
+  font-size: 0.82rem;
+  color: var(--accent-cyan);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.problem-dropdown {
+  background: rgba(10, 14, 23, 0.95);
+  color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 1rem;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition);
+}
+
+.problem-dropdown:hover, .problem-dropdown:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+}
+
 .nav-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.25rem;
   align-items: center;
 }
 
 .nav-link {
   color: var(--text-muted);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 500;
   transition: var(--transition);
 }
@@ -158,7 +199,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.45rem 0.9rem;
+  padding: 0.4rem 0.85rem;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-full);
@@ -176,10 +217,123 @@ body {
 }
 
 /* ==========================================================================
+   Dataset URL Dynamic Loader (加 2 分)
+   ========================================================================== */
+.dataset-loader-section {
+  max-width: 1300px;
+  margin: 1.5rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.dataset-loader-card {
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(17, 24, 39, 0.85) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.loader-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.loader-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loader-input-group {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.url-input {
+  flex: 1;
+  min-width: 280px;
+  padding: 0.65rem 1rem;
+  background: rgba(10, 14, 23, 0.8);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: monospace;
+  font-size: 0.85rem;
+  outline: none;
+  transition: var(--transition);
+}
+
+.url-input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+}
+
+.btn-fetch {
+  padding: 0.65rem 1.25rem;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-fetch:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+.preset-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+}
+
+.preset-chip {
+  padding: 0.25rem 0.65rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.preset-chip:hover {
+  background: rgba(59, 130, 246, 0.2);
+  color: #fff;
+  border-color: var(--accent-blue);
+}
+
+#loaderStatus {
+  font-size: 0.82rem;
+  color: var(--accent-emerald);
+  display: none;
+}
+
+/* ==========================================================================
    Hero Section
    ========================================================================== */
 .hero {
-  padding: 3.5rem 2rem 2rem;
+  padding: 2.5rem 2rem 1.5rem;
   max-width: 1300px;
   margin: 0 auto;
   text-align: center;
@@ -188,7 +342,7 @@ body {
 .hero-badge-wrapper {
   display: flex;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .hero-badge {
@@ -205,11 +359,11 @@ body {
 }
 
 .hero-title {
-  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
   font-weight: 800;
   line-height: 1.15;
   letter-spacing: -0.03em;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .hero-gradient-text {
@@ -219,10 +373,10 @@ body {
 }
 
 .hero-subtitle {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: var(--text-muted);
-  max-width: 780px;
-  margin: 0 auto 2.5rem;
+  max-width: 820px;
+  margin: 0 auto 2rem;
 }
 
 /* Stats / KPI Bar */
@@ -231,7 +385,7 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.25rem;
   max-width: 1100px;
-  margin: 0 auto 3rem;
+  margin: 0 auto 2.5rem;
 }
 
 .kpi-card {
@@ -300,7 +454,7 @@ body {
    ========================================================================== */
 .tabs-container {
   max-width: 1300px;
-  margin: 0 auto 2rem;
+  margin: 0 auto 1.5rem;
   padding: 0 1.5rem;
 }
 
@@ -317,7 +471,7 @@ body {
 
 .tab-btn {
   flex: 1;
-  min-width: 140px;
+  min-width: 130px;
   padding: 0.75rem 1rem;
   background: transparent;
   border: none;
@@ -364,7 +518,7 @@ body {
 
 .tab-content {
   display: none;
-  animation: fadeIn 0.35s ease-out;
+  animation: fadeIn 0.3s ease-out;
 }
 
 .tab-content.active {
@@ -374,6 +528,14 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Problem View Containers */
+.problem-view {
+  display: none;
+}
+.problem-view.active-problem {
+  display: block;
 }
 
 /* Glass Card */
@@ -404,14 +566,14 @@ body {
 }
 
 .card-icon {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   background: rgba(59, 130, 246, 0.15);
   border-radius: var(--radius-sm);
   display: grid;
   place-items: center;
   color: var(--accent-cyan);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
 }
 
 .card-title {
@@ -445,7 +607,7 @@ body {
 .chart-wrapper {
   position: relative;
   width: 100%;
-  min-height: 380px;
+  min-height: 360px;
   background: rgba(10, 14, 23, 0.4);
   border-radius: var(--radius-md);
   padding: 1rem;
@@ -496,12 +658,12 @@ body {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .modern-table th {
   background: rgba(17, 24, 39, 0.95);
-  padding: 0.9rem 1.2rem;
+  padding: 0.85rem 1.1rem;
   font-weight: 600;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border-color);
@@ -512,7 +674,7 @@ body {
 }
 
 .modern-table td {
-  padding: 0.85rem 1.2rem;
+  padding: 0.8rem 1.1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   color: var(--text-main);
   white-space: nowrap;
@@ -773,6 +935,63 @@ body {
 }
 
 /* ==========================================================================
+   Workflow DAG & Node Architecture (Boston Housing)
+   ========================================================================== */
+.workflow-dag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 1.25rem 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.workflow-node {
+  flex: 1;
+  min-width: 170px;
+  background: rgba(17, 24, 39, 0.75);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  position: relative;
+  text-align: left;
+  transition: var(--transition);
+}
+
+.workflow-node:hover {
+  border-color: var(--accent-cyan);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.2);
+}
+
+.workflow-node-type {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.workflow-node-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.workflow-node-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.workflow-arrow {
+  color: var(--text-subtle);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+/* ==========================================================================
    Dataset Search & Pagination
    ========================================================================== */
 .table-filter-bar {
@@ -823,6 +1042,7 @@ body {
   justify-content: center;
   gap: 1.5rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .footer-links a {

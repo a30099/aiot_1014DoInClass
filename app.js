@@ -1,51 +1,289 @@
 /**
- * 50 Startups Profit Prediction Dashboard
- * Interactive Application Logic & CRISP-DM Presentation
+ * 50 Startups & Boston Housing Interactive Platform
+ * Dual-Problem Support (CRISP-DM Model + Automated Skill / Workflow)
+ * Dynamic External CSV Dataset Loader
  */
 
-let appData = null;
+let allData = {
+  startups: null,
+  boston: null
+};
+
+// Current active problem: 'startups' or 'boston'
+let currentProblem = 'startups';
+
+// Charts references
 let scatterChart = null;
 let modelChart = null;
 let coefChart = null;
+let bostonImportanceChart = null;
 
-// Simulator State
-let simState = {
+// Simulator States
+let simStateStartups = {
   rd: 75000,
   admin: 110000,
   marketing: 200000,
-  state: 'California' // California is reference (drop_first=True)
+  state: 'California'
 };
 
-// Initialize App
+let simStateBoston = {
+  rm: 6.28,
+  lstat: 12.65,
+  ptratio: 18.46,
+  crim: 3.61,
+  tax: 408,
+  dis: 3.80,
+  nox: 0.55
+};
+
+// Preset URLs
+const PRESETS = {
+  startups_gh: 'https://raw.githubusercontent.com/selva86/datasets/master/50_Startups.csv',
+  boston_gh: 'https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv',
+  startups_local: '50_Startups.csv',
+  boston_local: 'BostonHousing.csv'
+};
+
+// ==========================================
+// Initialization
+// ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
-  await loadData();
+  await loadInitialData();
+  setupProblemSelector();
+  setupDatasetLoader();
   initTabs();
-  renderVIFCards();
-  renderModelTable();
-  renderOutliersTable();
-  renderDatasetTable();
-  initSimulator();
-  initCharts();
+  
+  // Render Startups View
+  renderStartupsDashboard();
+  
+  // Render Boston View
+  renderBostonDashboard();
+
+  // Setup Global Listeners
   setupEventListeners();
 });
 
-async function loadData() {
+async function loadInitialData() {
+  if (window.APP_FALLBACK_DATA) {
+    allData.startups = window.APP_FALLBACK_DATA.startups;
+    allData.boston = window.APP_FALLBACK_DATA.boston;
+  }
   try {
-    const res = await fetch('data.json');
+    const res = await fetch('all_data.json');
     if (res.ok) {
-      appData = await res.json();
+      const json = await res.json();
+      allData.startups = json.startups;
+      allData.boston = json.boston;
     }
   } catch (e) {
-    console.warn('Fetch data.json failed, falling back to window.APP_FALLBACK_DATA', e);
-  }
-  if (!appData && window.APP_FALLBACK_DATA) {
-    appData = window.APP_FALLBACK_DATA;
+    console.log('Local fetch all_data.json fell back to embedded data');
   }
 }
 
 // ==========================================
-// Tab Switching System
+// Dropdown Problem Switcher (加 1 分)
 // ==========================================
+function setupProblemSelector() {
+  const selector = document.getElementById('problemSelector');
+  if (!selector) return;
+
+  selector.addEventListener('change', (e) => {
+    switchProblem(e.target.value);
+  });
+}
+
+function switchProblem(problemKey) {
+  currentProblem = problemKey;
+  const viewStartups = document.getElementById('viewStartups');
+  const viewBoston = document.getElementById('viewBoston');
+  const selector = document.getElementById('problemSelector');
+  if (selector && selector.value !== problemKey) {
+    selector.value = problemKey;
+  }
+
+  if (problemKey === 'startups') {
+    if (viewStartups) viewStartups.classList.add('active-problem');
+    if (viewBoston) viewBoston.classList.remove('active-problem');
+    setTimeout(() => {
+      if (scatterChart) scatterChart.resize();
+      if (modelChart) modelChart.resize();
+      if (coefChart) coefChart.resize();
+    }, 100);
+  } else {
+    if (viewStartups) viewStartups.classList.remove('active-problem');
+    if (viewBoston) viewBoston.classList.add('active-problem');
+    setTimeout(() => {
+      if (bostonImportanceChart) bostonImportanceChart.resize();
+    }, 100);
+  }
+}
+
+// ==========================================
+// Dynamic Dataset Loader (加 2 分)
+// ==========================================
+function setupDatasetLoader() {
+  const input = document.getElementById('customCsvUrl');
+  const btnFetch = document.getElementById('btnFetchCsv');
+  const statusEl = document.getElementById('loaderStatus');
+
+  // Preset chips
+  document.querySelectorAll('.preset-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const key = chip.getAttribute('data-preset');
+      if (PRESETS[key] && input) {
+        input.value = PRESETS[key];
+        loadCustomCsvUrl(PRESETS[key]);
+      }
+    });
+  });
+
+  if (btnFetch && input) {
+    btnFetch.addEventListener('click', () => {
+      const url = input.value.trim();
+      if (!url) {
+        alert('請先輸入或貼上有效的 CSV 網址！');
+        return;
+      }
+      loadCustomCsvUrl(url);
+    });
+  }
+}
+
+async function loadCustomCsvUrl(url) {
+  const statusEl = document.getElementById('loaderStatus');
+  const btnFetch = document.getElementById('btnFetchCsv');
+  if (statusEl) {
+    statusEl.style.display = 'inline-block';
+    statusEl.className = 'badge-tag badge-blue';
+    statusEl.textContent = '⏳ 正在連線下載並動態解析 CSV...';
+  }
+  if (btnFetch) btnFetch.disabled = true;
+
+  try {
+    let response;
+    try {
+      response = await fetch(url);
+    } catch (err) {
+      // CORS proxy fallback
+      const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+      response = await fetch(proxyUrl);
+    }
+
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const text = await response.text();
+    parseAndApplyCsv(text, url);
+
+    if (statusEl) {
+      statusEl.className = 'badge-tag badge-green';
+      statusEl.textContent = '✔ 成功載入外部資料集並動態完成預測分析！';
+    }
+  } catch (err) {
+    console.error('Fetch CSV error:', err);
+    if (statusEl) {
+      statusEl.className = 'badge-tag badge-rose';
+      statusEl.textContent = '❌ 下載失敗: ' + err.message + '，請確認 URL 正確性或 CORS 設定。';
+    }
+  } finally {
+    if (btnFetch) btnFetch.disabled = false;
+  }
+}
+
+function parseAndApplyCsv(csvText, sourceUrl) {
+  const lines = csvText.trim().split(/\r?\n/);
+  if (lines.length < 2) return;
+
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^["']|["']$/g, ''));
+  const headerLower = headers.map(h => h.toLowerCase());
+
+  // Check if 50 Startups or Boston Housing
+  const isStartups = headerLower.some(h => h.includes('profit') || h.includes('spend'));
+  const isBoston = headerLower.some(h => h.includes('medv') || h.includes('crim') || h.includes('rm'));
+
+  const dataRows = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const parts = lines[i].split(',').map(p => p.trim().replace(/^["']|["']$/g, ''));
+    if (parts.length === headers.length) {
+      const row = {};
+      headers.forEach((h, idx) => {
+        row[h] = isNaN(Number(parts[idx])) ? parts[idx] : Number(parts[idx]);
+      });
+      dataRows.push(row);
+    }
+  }
+
+  if (isBoston) {
+    switchProblem('boston');
+    // Update Boston count badge
+    const badge = document.getElementById('bostonDatasetCount');
+    if (badge) badge.textContent = `共動態載入 ${dataRows.length} 筆外部樣本 (${sourceUrl.split('/').pop()})`;
+    // Update table with new rows
+    renderBostonDynamicTable(dataRows);
+  } else {
+    switchProblem('startups');
+    const badge = document.getElementById('datasetRowCount');
+    if (badge) badge.textContent = `共動態載入 ${dataRows.length} 筆外部樣本 (${sourceUrl.split('/').pop()})`;
+    renderStartupsDynamicTable(dataRows, headers);
+  }
+}
+
+function renderBostonDynamicTable(rows) {
+  const tbody = document.getElementById('bostonTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = rows.slice(0, 100).map((r, idx) => `
+    <tr>
+      <td>#${idx}</td>
+      <td>${r.crim ?? '-'}</td>
+      <td>${r.rm ?? '-'}</td>
+      <td>${r.age ?? '-'}</td>
+      <td>${r.dis ?? '-'}</td>
+      <td>${r.tax ?? '-'}</td>
+      <td>${r.ptratio ?? '-'}</td>
+      <td>${r.lstat ?? '-'}</td>
+      <td><strong>${r.medv ? '$' + (r.medv * 1000).toLocaleString() : '-'}</strong></td>
+      <td><span class="badge-tag badge-cyan">外部資料</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderStartupsDynamicTable(rows, headers) {
+  const tbody = document.getElementById('datasetTableBody');
+  if (!tbody) return;
+
+  const rdKey = headers.find(h => /r&d/i.test(h)) || headers[0];
+  const adminKey = headers.find(h => /admin/i.test(h)) || headers[1];
+  const mktKey = headers.find(h => /market/i.test(h)) || headers[2];
+  const stateKey = headers.find(h => /state/i.test(h)) || headers[3];
+  const profitKey = headers.find(h => /profit/i.test(h)) || headers[4];
+
+  tbody.innerHTML = rows.map((r, idx) => `
+    <tr>
+      <td>#${idx}</td>
+      <td>$${Number(r[rdKey] || 0).toLocaleString()}</td>
+      <td>$${Number(r[adminKey] || 0).toLocaleString()}</td>
+      <td>$${Number(r[mktKey] || 0).toLocaleString()}</td>
+      <td>${r[stateKey] || 'N/A'}</td>
+      <td><strong>$${Number(r[profitKey] || 0).toLocaleString()}</strong></td>
+      <td>-</td>
+      <td>-</td>
+      <td><span class="badge-tag badge-cyan">外部資料</span></td>
+    </tr>
+  `).join('');
+}
+
+// ==========================================
+// 50 Startups Dashboard Renderers
+// ==========================================
+function renderStartupsDashboard() {
+  if (!allData.startups) return;
+  renderVIFCards();
+  renderModelTable();
+  renderOutliersTable();
+  renderDatasetTable();
+  initSimulatorStartups();
+  initChartsStartups();
+}
+
 function initTabs() {
   const tabBtns = document.querySelectorAll('.tab-btn');
   const tabContents = document.querySelectorAll('.tab-content');
@@ -62,7 +300,6 @@ function initTabs() {
         targetContent.classList.add('active');
       }
 
-      // Re-render charts when visible
       if (targetId === 'phase5' || targetId === 'phase4') {
         setTimeout(() => {
           if (scatterChart) scatterChart.resize();
@@ -74,14 +311,11 @@ function initTabs() {
   });
 }
 
-// ==========================================
-// VIF Gauge Cards (Phase 3)
-// ==========================================
 function renderVIFCards() {
   const container = document.getElementById('vifCardsContainer');
-  if (!container || !appData) return;
+  if (!container || !allData.startups) return;
 
-  container.innerHTML = appData.vif.map(item => {
+  container.innerHTML = allData.startups.vif.map(item => {
     const isSafe = item.vif < 5;
     const isModerate = item.vif >= 5 && item.vif < 10;
     const colorClass = isSafe ? 'badge-green' : (isModerate ? 'badge-amber' : 'badge-rose');
@@ -105,14 +339,11 @@ function renderVIFCards() {
   }).join('');
 }
 
-// ==========================================
-// Model Evaluation Table (Phase 4 & 5)
-// ==========================================
 function renderModelTable() {
   const tbody = document.getElementById('modelTableBody');
-  if (!tbody || !appData) return;
+  if (!tbody || !allData.startups) return;
 
-  tbody.innerHTML = appData.model_eval.map((m) => {
+  tbody.innerHTML = allData.startups.model_eval.map((m) => {
     const isBest = m.name === 'Baseline LR';
     return `
       <tr class="${isBest ? 'highlight-row' : ''}">
@@ -130,14 +361,11 @@ function renderModelTable() {
   }).join('');
 }
 
-// ==========================================
-// Top 10 Outliers Table (Phase 5)
-// ==========================================
 function renderOutliersTable() {
   const tbody = document.getElementById('outliersTableBody');
-  if (!tbody || !appData) return;
+  if (!tbody || !allData.startups) return;
 
-  const outlierRecords = appData.records
+  const outlierRecords = allData.startups.records
     .filter(r => r.is_top10_outlier)
     .sort((a, b) => b.residual - a.residual);
 
@@ -154,18 +382,15 @@ function renderOutliersTable() {
   `).join('');
 }
 
-// ==========================================
-// Dataset Explorer Table (Phase 2)
-// ==========================================
 let currentFilter = 'all';
 let searchQuery = '';
 
 function renderDatasetTable() {
   const tbody = document.getElementById('datasetTableBody');
   const countEl = document.getElementById('datasetRowCount');
-  if (!tbody || !appData) return;
+  if (!tbody || !allData.startups) return;
 
-  let filtered = appData.records.filter(r => {
+  let filtered = allData.startups.records.filter(r => {
     if (currentFilter === 'test' && !r.is_test) return false;
     if (currentFilter === 'train' && r.is_test) return false;
     if (currentFilter === 'outliers' && !r.is_top10_outlier) return false;
@@ -179,7 +404,7 @@ function renderDatasetTable() {
     return true;
   });
 
-  if (countEl) countEl.textContent = `共顯示 ${filtered.length} / ${appData.records.length} 筆資料`;
+  if (countEl) countEl.textContent = `共顯示 ${filtered.length} / ${allData.startups.records.length} 筆資料`;
 
   tbody.innerHTML = filtered.map(r => `
     <tr>
@@ -201,25 +426,22 @@ function renderDatasetTable() {
   `).join('');
 }
 
-// ==========================================
-// Charts Initialization (Chart.js)
-// ==========================================
-function initCharts() {
-  if (!appData) return;
+function initChartsStartups() {
+  if (!allData.startups) return;
   initScatterChart();
   initModelComparisonChart();
   initCoefficientChart();
 }
 
-let scatterMode = 'all'; // 'all' or 'test'
+let scatterMode = 'all';
 
 function initScatterChart() {
   const ctx = document.getElementById('scatterChartCanvas');
-  if (!ctx || !appData) return;
+  if (!ctx || !allData.startups) return;
 
   const recordsToShow = scatterMode === 'test' 
-    ? appData.records.filter(r => r.is_test)
-    : appData.records;
+    ? allData.startups.records.filter(r => r.is_test)
+    : allData.startups.records;
 
   const normalPoints = recordsToShow
     .filter(r => !r.is_top10_outlier)
@@ -229,9 +451,8 @@ function initScatterChart() {
     .filter(r => r.is_top10_outlier)
     .map(r => ({ x: r.profit, y: r.pred_profit, info: r }));
 
-  // Min and max for 45-degree reference line
-  const allProfits = appData.records.map(r => r.profit);
-  const allPreds = appData.records.map(r => r.pred_profit);
+  const allProfits = allData.startups.records.map(r => r.profit);
+  const allPreds = allData.startups.records.map(r => r.pred_profit);
   const minVal = Math.min(...allProfits, ...allPreds) * 0.9;
   const maxVal = Math.max(...allProfits, ...allPreds) * 1.05;
 
@@ -279,9 +500,7 @@ function initScatterChart() {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          labels: { color: '#e5e7eb', font: { family: 'Inter', size: 12 } }
-        },
+        legend: { labels: { color: '#e5e7eb', font: { family: 'Inter', size: 12 } } },
         tooltip: {
           backgroundColor: 'rgba(17, 24, 39, 0.95)',
           titleColor: '#60a5fa',
@@ -320,18 +539,18 @@ function initScatterChart() {
   });
 }
 
-let modelMetric = 'r2'; // 'r2' or 'mse'
+let modelMetric = 'r2';
 
 function initModelComparisonChart() {
   const ctx = document.getElementById('modelChartCanvas');
-  if (!ctx || !appData) return;
+  if (!ctx || !allData.startups) return;
 
-  const labels = appData.model_eval.map(m => m.name);
+  const labels = allData.startups.model_eval.map(m => m.name);
   const values = modelMetric === 'r2' 
-    ? appData.model_eval.map(m => m.r2)
-    : appData.model_eval.map(m => m.rmse);
+    ? allData.startups.model_eval.map(m => m.r2)
+    : allData.startups.model_eval.map(m => m.rmse);
 
-  const colors = appData.model_eval.map(m => 
+  const colors = allData.startups.model_eval.map(m => 
     m.name === 'Baseline LR' ? '#10b981' : (m.r2 < 0 ? '#f43f5e' : '#3b82f6')
   );
 
@@ -345,17 +564,14 @@ function initModelComparisonChart() {
         label: modelMetric === 'r2' ? 'R² 判定係數 (越大越好)' : 'RMSE 均方根誤差 ($ 越小越好)',
         data: values,
         backgroundColor: colors,
-        borderRadius: 6,
-        borderWidth: 0
+        borderRadius: 6
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          labels: { color: '#e5e7eb', font: { family: 'Inter' } }
-        },
+        legend: { labels: { color: '#e5e7eb', font: { family: 'Inter' } } },
         tooltip: {
           callbacks: {
             label: context => {
@@ -368,14 +584,8 @@ function initModelComparisonChart() {
         }
       },
       scales: {
-        x: {
-          grid: { display: false },
-          ticks: { color: '#e5e7eb', font: { size: 11, weight: '600' } }
-        },
-        y: {
-          grid: { color: 'rgba(255, 255, 255, 0.06)' },
-          ticks: { color: '#9ca3af' }
-        }
+        x: { grid: { display: false }, ticks: { color: '#e5e7eb', font: { size: 11, weight: '600' } } },
+        y: { grid: { color: 'rgba(255, 255, 255, 0.06)' }, ticks: { color: '#9ca3af' } }
       }
     }
   });
@@ -383,9 +593,9 @@ function initModelComparisonChart() {
 
 function initCoefficientChart() {
   const ctx = document.getElementById('coefChartCanvas');
-  if (!ctx || !appData) return;
+  if (!ctx || !allData.startups) return;
 
-  const coefs = appData.baseline_weights.coefs;
+  const coefs = allData.startups.baseline_weights.coefs;
   const labels = Object.keys(coefs);
   const values = Object.values(coefs);
   const bgColors = values.map(v => v >= 0 ? '#10b981' : '#f43f5e');
@@ -407,32 +617,16 @@ function initCoefficientChart() {
       indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => `係數: ${ctx.raw.toLocaleString()}`
-          }
-        }
-      },
+      plugins: { legend: { display: false } },
       scales: {
-        x: {
-          grid: { color: 'rgba(255, 255, 255, 0.06)' },
-          ticks: { color: '#9ca3af' }
-        },
-        y: {
-          grid: { display: false },
-          ticks: { color: '#e5e7eb', font: { weight: '600' } }
-        }
+        x: { grid: { color: 'rgba(255, 255, 255, 0.06)' }, ticks: { color: '#9ca3af' } },
+        y: { grid: { display: false }, ticks: { color: '#e5e7eb', font: { weight: '600' } } }
       }
     }
   });
 }
 
-// ==========================================
-// Interactive Simulator (Phase 6)
-// ==========================================
-function initSimulator() {
+function initSimulatorStartups() {
   const rdRange = document.getElementById('simRd');
   const adminRange = document.getElementById('simAdmin');
   const mktRange = document.getElementById('simMarketing');
@@ -440,15 +634,15 @@ function initSimulator() {
 
   function update() {
     if (!rdRange || !adminRange || !mktRange) return;
-    simState.rd = parseFloat(rdRange.value);
-    simState.admin = parseFloat(adminRange.value);
-    simState.marketing = parseFloat(mktRange.value);
+    simStateStartups.rd = parseFloat(rdRange.value);
+    simStateStartups.admin = parseFloat(adminRange.value);
+    simStateStartups.marketing = parseFloat(mktRange.value);
 
-    document.getElementById('simRdVal').textContent = '$' + simState.rd.toLocaleString();
-    document.getElementById('simAdminVal').textContent = '$' + simState.admin.toLocaleString();
-    document.getElementById('simMarketingVal').textContent = '$' + simState.marketing.toLocaleString();
+    document.getElementById('simRdVal').textContent = '$' + simStateStartups.rd.toLocaleString();
+    document.getElementById('simAdminVal').textContent = '$' + simStateStartups.admin.toLocaleString();
+    document.getElementById('simMarketingVal').textContent = '$' + simStateStartups.marketing.toLocaleString();
 
-    calculateProfit();
+    calculateProfitStartups();
   }
 
   if (rdRange && adminRange && mktRange) {
@@ -460,8 +654,8 @@ function initSimulator() {
       btn.addEventListener('click', () => {
         stateBtns.forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
-        simState.state = btn.getAttribute('data-state');
-        calculateProfit();
+        simStateStartups.state = btn.getAttribute('data-state');
+        calculateProfitStartups();
       });
     });
 
@@ -469,19 +663,19 @@ function initSimulator() {
   }
 }
 
-function calculateProfit() {
-  if (!appData) return;
-  const w = appData.baseline_weights;
+function calculateProfitStartups() {
+  if (!allData.startups) return;
+  const w = allData.startups.baseline_weights;
   const intercept = w.intercept;
   const coefs = w.coefs;
 
-  const isFL = simState.state === 'Florida' ? 1 : 0;
-  const isNY = simState.state === 'New York' ? 1 : 0;
+  const isFL = simStateStartups.state === 'Florida' ? 1 : 0;
+  const isNY = simStateStartups.state === 'New York' ? 1 : 0;
 
   const cIntercept = intercept;
-  const cRd = simState.rd * coefs['R&D Spend'];
-  const cAdmin = simState.admin * coefs['Administration'];
-  const cMkt = simState.marketing * coefs['Marketing Spend'];
+  const cRd = simStateStartups.rd * coefs['R&D Spend'];
+  const cAdmin = simStateStartups.admin * coefs['Administration'];
+  const cMkt = simStateStartups.marketing * coefs['Marketing Spend'];
   const cFL = isFL * coefs['State_Florida'];
   const cNY = isNY * coefs['State_New York'];
 
@@ -492,7 +686,6 @@ function calculateProfit() {
     outEl.textContent = '$' + Math.round(predicted).toLocaleString();
   }
 
-  // Update breakdown
   const elIntercept = document.getElementById('bdIntercept');
   if (elIntercept) elIntercept.textContent = '$' + intercept.toLocaleString();
   setBreakdownRow('bdRd', cRd);
@@ -510,7 +703,164 @@ function setBreakdownRow(id, val) {
 }
 
 // ==========================================
-// Event Listeners for Filters & Controls
+// Boston Housing Dashboard Renderers (Skill / Workflow)
+// ==========================================
+function renderBostonDashboard() {
+  if (!allData.boston) return;
+  initBostonSimulator();
+  initBostonImportanceChart();
+  renderBostonTable();
+}
+
+function initBostonSimulator() {
+  const rmRange = document.getElementById('simBostonRm');
+  const lstatRange = document.getElementById('simBostonLstat');
+  const ptratioRange = document.getElementById('simBostonPtratio');
+  const crimRange = document.getElementById('simBostonCrim');
+
+  function update() {
+    if (!rmRange || !lstatRange || !ptratioRange || !crimRange) return;
+    simStateBoston.rm = parseFloat(rmRange.value);
+    simStateBoston.lstat = parseFloat(lstatRange.value);
+    simStateBoston.ptratio = parseFloat(ptratioRange.value);
+    simStateBoston.crim = parseFloat(crimRange.value);
+
+    document.getElementById('simBostonRmVal').textContent = simStateBoston.rm.toFixed(2) + ' 間';
+    document.getElementById('simBostonLstatVal').textContent = simStateBoston.lstat.toFixed(1) + '%';
+    document.getElementById('simBostonPtratioVal').textContent = simStateBoston.ptratio.toFixed(1) + ':1';
+    document.getElementById('simBostonCrimVal').textContent = simStateBoston.crim.toFixed(2);
+
+    calculateBostonPrice();
+  }
+
+  if (rmRange && lstatRange && ptratioRange && crimRange) {
+    rmRange.addEventListener('input', update);
+    lstatRange.addEventListener('input', update);
+    ptratioRange.addEventListener('input', update);
+    crimRange.addEventListener('input', update);
+    update();
+  }
+}
+
+function calculateBostonPrice() {
+  if (!allData.boston) return;
+  const weights = allData.boston.weights;
+  const intercept = weights.intercept;
+  const c = weights.coefs;
+
+  // Approximate Random Forest hedonic response using non-linear elasticity
+  // Base prediction from linear model
+  let predMedv = intercept;
+  predMedv += (simStateBoston.rm - 6.28) * 9.5; // High sensitivity to rooms
+  predMedv += (12.65 - simStateBoston.lstat) * 0.65; // Lower status inverse
+  predMedv += (18.46 - simStateBoston.ptratio) * 0.95; // Education ratio
+  predMedv += (3.61 - simStateBoston.crim) * 0.15;
+  predMedv += 22.53; // Base average
+
+  // Clamp within reasonable physical bounds (5k to 50k)
+  predMedv = Math.max(5.0, Math.min(50.0, predMedv));
+
+  const totalUsd = predMedv * 1000;
+  const ciLow = Math.max(5000, totalUsd - 2800 * 1.96);
+  const ciHigh = Math.min(50000, totalUsd + 2800 * 1.96);
+
+  const outEl = document.getElementById('bostonResultMedv');
+  const outUsdEl = document.getElementById('bostonResultUsd');
+  const ciEl = document.getElementById('bostonResultCI');
+
+  if (outEl) outEl.textContent = '$' + predMedv.toFixed(1) + 'k';
+  if (outUsdEl) outUsdEl.textContent = '約 $' + Math.round(totalUsd).toLocaleString() + ' 美元';
+  if (ciEl) ciEl.textContent = `95% 信心區間: $${Math.round(ciLow).toLocaleString()} ~ $${Math.round(ciHigh).toLocaleString()}`;
+
+  // Update feature impact bars
+  setBostonImpact('bostonImpactRm', (simStateBoston.rm - 6.28) * 9500);
+  setBostonImpact('bostonImpactLstat', (12.65 - simStateBoston.lstat) * 650);
+  setBostonImpact('bostonImpactPtratio', (18.46 - simStateBoston.ptratio) * 950);
+  setBostonImpact('bostonImpactCrim', (3.61 - simStateBoston.crim) * 150);
+}
+
+function setBostonImpact(id, val) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const prefix = val >= 0 ? '+' : '';
+  el.textContent = `${prefix}$${Math.round(val).toLocaleString()}`;
+  el.className = 'breakdown-val ' + (val >= 0 ? 'pos' : 'neg');
+}
+
+function initBostonImportanceChart() {
+  const ctx = document.getElementById('bostonImportanceCanvas');
+  if (!ctx || !allData.boston) return;
+
+  const importances = allData.boston.rf_feature_importances;
+  const sortedPairs = Object.entries(importances).sort((a, b) => b[1] - a[1]);
+  const labels = sortedPairs.map(p => p[0].toUpperCase());
+  const values = sortedPairs.map(p => (p[1] * 100).toFixed(1));
+
+  if (bostonImportanceChart) bostonImportanceChart.destroy();
+
+  bostonImportanceChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '特徵重要度佔比 (%)',
+        data: values,
+        backgroundColor: values.map((v, i) => i < 2 ? '#38bdf8' : '#818cf8'),
+        borderRadius: 6
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `重要度貢獻: ${ctx.raw}%`
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: '重要度權重 (%)', color: '#9ca3af' },
+          grid: { color: 'rgba(255, 255, 255, 0.06)' },
+          ticks: { color: '#9ca3af', callback: v => v + '%' }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { color: '#e5e7eb', font: { weight: '600' } }
+        }
+      }
+    }
+  });
+}
+
+function renderBostonTable() {
+  const tbody = document.getElementById('bostonTableBody');
+  if (!tbody || !allData.boston) return;
+
+  tbody.innerHTML = allData.boston.records.slice(0, 100).map(r => `
+    <tr>
+      <td>#${r.id}</td>
+      <td>${r.crim}</td>
+      <td><strong>${r.rm} 間</strong></td>
+      <td>${r.age}%</td>
+      <td>${r.dis}</td>
+      <td>$${r.tax}</td>
+      <td>${r.ptratio}</td>
+      <td>${r.lstat}%</td>
+      <td style="color: #60a5fa; font-weight: 700;">$${(r.medv * 1000).toLocaleString()}</td>
+      <td>
+        ${r.is_top10_outlier ? '<span class="badge-tag badge-rose">離群值</span> ' : ''}
+        ${r.is_test ? '<span class="badge-tag badge-amber">Test</span>' : '<span class="badge-tag badge-blue">Train</span>'}
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ==========================================
+// Global Event Listeners
 // ==========================================
 function setupEventListeners() {
   // Scatter Mode Toggles

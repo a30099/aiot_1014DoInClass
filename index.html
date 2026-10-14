@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>50 Startups 利潤預測與特徵選擇互動分析平台 | CRISP-DM 機器學習實戰</title>
-  <meta name="description" content="基於 CRISP-DM 流程之 50 Startups 利潤迴歸預測、6大特徵選擇模型比較、共線性檢驗 (VIF)、離群值殘差偵測與即時試算模擬器。">
-  <meta name="keywords" content="50 Startups, CRISP-DM, 機器學習, 特徵選擇, 迴歸分析, Lasso, ElasticNet, RFECV, SFS, EFS">
+  <title>50 Startups & Boston Housing 機器學習雙主題互動分析平台</title>
+  <meta name="description" content="整合 50 Startups 新創公司利潤預測 (自研 CRISP-DM 6 大特徵選擇模型) 與 Boston Housing 波士頓房價預測 (套用自動化 Skill / Workflow 模組)，支援動態外部 CSV 資料集網址輸入與分析。">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,497 +22,662 @@
   <!-- Navigation Bar -->
   <header class="navbar">
     <a href="#" class="nav-brand">
-      <div class="brand-icon">🚀</div>
+      <div class="brand-icon">⚡</div>
       <div>
-        <div class="brand-title">50 Startups AI Predictor</div>
+        <div class="brand-title">AIoT ML Analysis Hub</div>
       </div>
-      <span class="brand-tag">CRISP-DM Standard</span>
+      <span class="brand-tag">Dual-Problem System</span>
     </a>
 
+    <!-- Dropdown Selector (加 1 分) -->
+    <div class="problem-selector-wrapper">
+      <label for="problemSelector" class="problem-label">當前問題切換：</label>
+      <select id="problemSelector" class="problem-dropdown" aria-label="切換機器學習問題">
+        <option value="startups" selected>📊 題目一：50 Startups 利潤預測 (自研 CRISP-DM 模型)</option>
+        <option value="boston">🏠 題目二：Boston Housing 房價預測 (套用 Skill / Workflow)</option>
+      </select>
+    </div>
+
     <nav class="nav-links">
-      <a href="#overview" class="nav-link active">總覽</a>
-      <a href="#pipeline" class="nav-link">分析流程</a>
-      <a href="#simulator" class="nav-link">預測模擬器</a>
-      <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="github-badge">
-        <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor">
+      <a href="https://github.com/a30099/aiot_1014DoInClass" target="_blank" rel="noopener noreferrer" class="github-badge">
+        <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor">
           <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
         </svg>
-        <span>GitHub Repository</span>
+        <span>GitHub Repo</span>
       </a>
     </nav>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero" id="overview">
-    <div class="hero-badge-wrapper">
-      <span class="hero-badge">✨ Machine Learning & Feature Selection Dashboard</span>
-    </div>
-    <h1 class="hero-title">
-      50 家新創公司利潤預測與<br>
-      <span class="hero-gradient-text">特徵選擇互動分析平台</span>
-    </h1>
-    <p class="hero-subtitle">
-      嚴格遵循 CRISP-DM 資料探勘標準架構，深度整合 6 種機器學習特徵選擇演算法、VIF 共線性檢定、殘差離群值分析與即時利潤試算模擬器。
-    </p>
-
-    <!-- Top KPI Grid -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-label">
-          <span>樣本規模</span>
-          <span>📊</span>
+  <!-- Dynamic Dataset Loader Section (加 2 分: 可任意輸入外部 Dataset 網址) -->
+  <section class="dataset-loader-section">
+    <div class="dataset-loader-card">
+      <div class="loader-header">
+        <div class="loader-title">
+          <span>🌐 動態載入外部資料集 (Dynamic Dataset URL Loader)</span>
+          <span class="badge-tag badge-blue">加 2 分必備功能</span>
         </div>
-        <div class="kpi-value">50 家</div>
-        <div class="kpi-sub">80% 訓練集 / 20% 測試集</div>
+        <span id="loaderStatus" class="badge-tag badge-green">✔ 就緒</span>
       </div>
-
-      <div class="kpi-card">
-        <div class="kpi-label">
-          <span>最佳模型</span>
-          <span>🏆</span>
-        </div>
-        <div class="kpi-value">Baseline LR</div>
-        <div class="kpi-sub">綜合表現最佳</div>
+      <div class="loader-input-group">
+        <input type="url" id="customCsvUrl" class="url-input" placeholder="請在此貼上任意外部 CSV 網址，例如 https://raw.githubusercontent.com/.../BostonHousing.csv" value="https://raw.githubusercontent.com/selva86/datasets/master/50_Startups.csv">
+        <button id="btnFetchCsv" class="btn-fetch">🚀 動態載入並分析</button>
       </div>
-
-      <div class="kpi-card">
-        <div class="kpi-label">
-          <span>最高 R² 判定係數</span>
-          <span>📈</span>
-        </div>
-        <div class="kpi-value" style="color: #60a5fa;">0.3341</div>
-        <div class="kpi-sub">解譯約 33.4% 測試集變異</div>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-label">
-          <span>特徵選擇模型</span>
-          <span>🧠</span>
-        </div>
-        <div class="kpi-value" style="color: #c084fc;">6 種</div>
-        <div class="kpi-sub">涵蓋 Filter, Wrapper & Embedded</div>
+      <div class="preset-chips-row">
+        <span style="color: var(--text-subtle);">快速測試範例：</span>
+        <button type="button" class="preset-chip" data-preset="startups_gh">50 Startups (Raw GitHub)</button>
+        <button type="button" class="preset-chip" data-preset="boston_gh">Boston Housing (Raw GitHub)</button>
+        <button type="button" class="preset-chip" data-preset="startups_local">本機 50_Startups.csv</button>
+        <button type="button" class="preset-chip" data-preset="boston_local">本機 BostonHousing.csv</button>
       </div>
     </div>
   </section>
 
-  <!-- CRISP-DM Tabs Navigation -->
-  <div class="tabs-container" id="pipeline">
-    <nav class="tabs-nav" aria-label="CRISP-DM Phases">
-      <button class="tab-btn active" data-tab="phase1">
-        <span class="tab-badge">Phase 1</span>
-        <span>商業理解</span>
-      </button>
-      <button class="tab-btn" data-tab="phase2">
-        <span class="tab-badge">Phase 2</span>
-        <span>資料理解</span>
-      </button>
-      <button class="tab-btn" data-tab="phase3">
-        <span class="tab-badge">Phase 3</span>
-        <span>資料準備</span>
-      </button>
-      <button class="tab-btn" data-tab="phase4">
-        <span class="tab-badge">Phase 4</span>
-        <span>模型構建</span>
-      </button>
-      <button class="tab-btn" data-tab="phase5">
-        <span class="tab-badge">Phase 5</span>
-        <span>模型評估</span>
-      </button>
-      <button class="tab-btn" data-tab="phase6" id="simulator">
-        <span class="tab-badge">Phase 6</span>
-        <span>預測模擬器</span>
-      </button>
-    </nav>
-  </div>
+  <!-- ====================================================================
+       VIEW 1: 50 Startups (自研 CRISP-DM 模型)
+       ==================================================================== -->
+  <div id="viewStartups" class="problem-view active-problem">
+    
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-badge-wrapper">
+        <span class="hero-badge">📊 題目一：自研模型實作 (Custom CRISP-DM Pipeline)</span>
+      </div>
+      <h1 class="hero-title">
+        50 家新創公司利潤預測與<br>
+        <span class="hero-gradient-text">特徵選擇互動分析平台</span>
+      </h1>
+      <p class="hero-subtitle">
+        依據 CRISP-DM 流程，自行設計 6 種特徵選擇演算法、VIF 共線性檢定、殘差離群值分析與即時利潤試算模擬器。
+      </p>
 
-  <!-- Main Content Wrapper -->
-  <main class="main-wrapper">
-
-    <!-- ====================================================================
-         Phase 1: Business Understanding
-         ==================================================================== -->
-    <section class="tab-content active" id="phase1">
-      <div class="glass-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon">🎯</div>
-            <div>
-              <h2 class="card-title">Phase 1: 商業理解 (Business Understanding)</h2>
-              <p class="card-subtitle">專案商業目標、效益衡量與機器學習落地藍圖</p>
-            </div>
-          </div>
+      <!-- KPI Grid -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label"><span>樣本規模</span><span>📊</span></div>
+          <div class="kpi-value">50 家</div>
+          <div class="kpi-sub">80% 訓練集 / 20% 測試集</div>
         </div>
-
-        <div class="grid-3">
-          <div style="background: rgba(10, 14, 23, 0.4); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-            <h3 style="font-size: 1.05rem; margin-bottom: 0.5rem; color: #60a5fa;">🎯 核心目標</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted);">
-              協助創投公司 (VC) 與天使投資人精準預測 50 家新創企業的獲利能力 (Profit)，並找出驅動高利潤最關鍵的營運指標。
-            </p>
-          </div>
-
-          <div style="background: rgba(10, 14, 23, 0.4); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-            <h3 style="font-size: 1.05rem; margin-bottom: 0.5rem; color: #c084fc;">💡 商業痛點</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted);">
-              早期新創資金分配不均，常過度投入行政或單一州別行銷，需藉由資料科學模型釐清各類支出對利潤的正負相關性。
-            </p>
-          </div>
-
-          <div style="background: rgba(10, 14, 23, 0.4); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-            <h3 style="font-size: 1.05rem; margin-bottom: 0.5rem; color: #34d399;">📈 落地價值</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted);">
-              透過即時模擬器進行「What-If 情境分析」，動態試算研發預算、行銷支出及總部設立州別對預期利潤的影響。
-            </p>
-          </div>
+        <div class="kpi-card">
+          <div class="kpi-label"><span>最佳模型</span><span>🏆</span></div>
+          <div class="kpi-value">Baseline LR</div>
+          <div class="kpi-sub">綜合表現最佳</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label"><span>最高 R² 判定係數</span><span>📈</span></div>
+          <div class="kpi-value" style="color: #60a5fa;">0.3341</div>
+          <div class="kpi-sub">解譯約 33.4% 測試集變異</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label"><span>特徵選擇模型</span><span>🧠</span></div>
+          <div class="kpi-value" style="color: #c084fc;">6 種</div>
+          <div class="kpi-sub">涵蓋 Filter, Wrapper & Embedded</div>
         </div>
       </div>
     </section>
 
-    <!-- ====================================================================
-         Phase 2: Data Understanding
-         ==================================================================== -->
-    <section class="tab-content" id="phase2">
+    <!-- Tabs Navigation -->
+    <div class="tabs-container">
+      <nav class="tabs-nav" aria-label="CRISP-DM Phases">
+        <button class="tab-btn active" data-tab="phase1"><span class="tab-badge">Phase 1</span><span>商業理解</span></button>
+        <button class="tab-btn" data-tab="phase2"><span class="tab-badge">Phase 2</span><span>資料理解</span></button>
+        <button class="tab-btn" data-tab="phase3"><span class="tab-badge">Phase 3</span><span>資料準備</span></button>
+        <button class="tab-btn" data-tab="phase4"><span class="tab-badge">Phase 4</span><span>模型構建</span></button>
+        <button class="tab-btn" data-tab="phase5"><span class="tab-badge">Phase 5</span><span>模型評估</span></button>
+        <button class="tab-btn" data-tab="phase6"><span class="tab-badge">Phase 6</span><span>預測模擬器</span></button>
+      </nav>
+    </div>
+
+    <!-- Main Content Wrapper -->
+    <main class="main-wrapper">
+      
+      <!-- Phase 1 -->
+      <section class="tab-content active" id="phase1">
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon">🎯</div>
+              <div>
+                <h2 class="card-title">Phase 1: 商業理解 (Business Understanding)</h2>
+                <p class="card-subtitle">專案商業目標、效益衡量與機器學習落地藍圖</p>
+              </div>
+            </div>
+          </div>
+          <div class="grid-3">
+            <div style="background: rgba(10, 14, 23, 0.4); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <h3 style="font-size: 1.05rem; margin-bottom: 0.5rem; color: #60a5fa;">🎯 核心目標</h3>
+              <p style="font-size: 0.88rem; color: var(--text-muted);">協助創投公司 (VC) 與天使投資人精準預測 50 家新創企業的獲利能力 (Profit)，並找出驅動高利潤最關鍵的營運指標。</p>
+            </div>
+            <div style="background: rgba(10, 14, 23, 0.4); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <h3 style="font-size: 1.05rem; margin-bottom: 0.5rem; color: #c084fc;">💡 商業痛點</h3>
+              <p style="font-size: 0.88rem; color: var(--text-muted);">早期新創資金分配不均，常過度投入行政或單一州別行銷，需藉由資料科學模型釐清各類支出對利潤的正負相關性。</p>
+            </div>
+            <div style="background: rgba(10, 14, 23, 0.4); padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <h3 style="font-size: 1.05rem; margin-bottom: 0.5rem; color: #34d399;">📈 落地價值</h3>
+              <p style="font-size: 0.88rem; color: var(--text-muted);">透過即時模擬器進行「What-If 情境分析」，動態試算研發預算、行銷支出及總部設立州別對預期利潤的影響。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Phase 2 -->
+      <section class="tab-content" id="phase2">
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon">📁</div>
+              <div>
+                <h2 class="card-title">Phase 2: 資料理解 (Data Understanding)</h2>
+                <p class="card-subtitle">50 家新創公司結構化資料探索與動態瀏覽</p>
+              </div>
+            </div>
+            <div id="datasetRowCount" style="font-size: 0.85rem; color: var(--accent-cyan);">載入中...</div>
+          </div>
+          <div class="table-filter-bar">
+            <input type="text" id="datasetSearch" class="search-input" placeholder="🔍 搜尋公司編號 (例: #10) 或 州別 (例: New York)...">
+            <div class="filter-pills">
+              <button class="btn-pill active" data-table-filter="all">全部 (50)</button>
+              <button class="btn-pill" data-table-filter="train">訓練集 (40)</button>
+              <button class="btn-pill" data-table-filter="test">測試集 (10)</button>
+              <button class="btn-pill" data-table-filter="outliers">Top 10 離群值</button>
+            </div>
+          </div>
+          <div class="table-responsive" style="max-height: 480px;">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>編號</th>
+                  <th>研發支出 (R&D)</th>
+                  <th>行政費用 (Admin)</th>
+                  <th>行銷支出 (Marketing)</th>
+                  <th>設立州別 (State)</th>
+                  <th>實際利潤 (Profit)</th>
+                  <th>預測利潤 (Predicted)</th>
+                  <th>殘差 (Residual)</th>
+                  <th>資料標籤</th>
+                </tr>
+              </thead>
+              <tbody id="datasetTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Phase 3 -->
+      <section class="tab-content" id="phase3">
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon">⚙️</div>
+              <div>
+                <h2 class="card-title">Phase 3: 資料準備 (Data Preparation)</h2>
+                <p class="card-subtitle">類別特徵編碼策略與共線性 (Multicollinearity) 檢驗</p>
+              </div>
+            </div>
+          </div>
+          <div style="margin-bottom: 1.5rem; background: rgba(59, 130, 246, 0.08); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid var(--accent-blue);">
+            <h4 style="color: #60a5fa; margin-bottom: 0.35rem;">📌 虛擬變數陷阱 (Dummy Variable Trap) 處理</h4>
+            <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">
+              本專案採用 <strong>Model B (drop_first=True)</strong> 策略：將類別變數 <code>State</code> 轉為 2 個虛擬變數（保留 Florida 與 New York，California 作為基準參考組），保留截距項，避免多元共線性。
+            </p>
+          </div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-main);">變異數膨脹因子檢定 (Variance Inflation Factor, VIF)</h3>
+          <div class="grid-3" id="vifCardsContainer"></div>
+        </div>
+      </section>
+
+      <!-- Phase 4 -->
+      <section class="tab-content" id="phase4">
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon">🤖</div>
+              <div>
+                <h2 class="card-title">Phase 4: 模型構建 (Modeling)</h2>
+                <p class="card-subtitle">比較 6 種特徵選擇演算法與模型係數權重</p>
+              </div>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div>
+              <h3 style="font-size: 1rem; margin-bottom: 0.8rem; color: var(--text-main);">Baseline LR 各特徵回歸係數 (β Weights)</h3>
+              <div class="chart-wrapper" style="min-height: 320px;">
+                <canvas id="coefChartCanvas"></canvas>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.9rem;">
+              <div style="background: rgba(10, 14, 23, 0.4); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                <h4 style="color: #60a5fa; font-size: 0.95rem;">1. Baseline Linear Regression (基準線性迴歸)</h4>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">使用全部 5 個輸入特徵進行 OLS 擬合，提供基準表現指標。</p>
+              </div>
+              <div style="background: rgba(10, 14, 23, 0.4); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                <h4 style="color: #38bdf8; font-size: 0.95rem;">2. LassoCV & ElasticNetCV</h4>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">透過 L1 / L2 懲罰項將不具預測力之係數收縮至 0。</p>
+              </div>
+              <div style="background: rgba(10, 14, 23, 0.4); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                <h4 style="color: #c084fc; font-size: 0.95rem;">3. RFECV & Sequential Forward Selection (SFS)</h4>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">Wrapper 包裝法：遞迴特徵消除與前向貪婪演算法。</p>
+              </div>
+              <div style="background: rgba(10, 14, 23, 0.4); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                <h4 style="color: #34d399; font-size: 0.95rem;">4. Exhaustive Feature Selection (EFS)</h4>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">窮舉所有 2⁵-1 = 31 種特徵組合，以 5-Fold CV 尋求最佳子集。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Phase 5 -->
+      <section class="tab-content" id="phase5">
+        <div class="grid-2">
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="card-icon">📉</div>
+                <div>
+                  <h3 class="card-title">預測值 vs 實際值散佈圖</h3>
+                  <p class="card-subtitle">含理想迴歸線 (y = x) 與離群值標記</p>
+                </div>
+              </div>
+              <div class="chart-controls">
+                <button class="btn-pill active" data-scatter-mode="all">全部 50 筆</button>
+                <button class="btn-pill" data-scatter-mode="test">僅測試集 (10 筆)</button>
+              </div>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="scatterChartCanvas"></canvas>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="card-icon">📊</div>
+                <div>
+                  <h3 class="card-title">6 大模型成效評估比較</h3>
+                  <p class="card-subtitle">測試集判定係數與均方根誤差指標</p>
+                </div>
+              </div>
+              <div class="chart-controls">
+                <button class="btn-pill active" data-metric-mode="r2">R² 判定係數</button>
+                <button class="btn-pill" data-metric-mode="mse">RMSE 誤差 ($)</button>
+              </div>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="modelChartCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon">📋</div>
+              <div>
+                <h3 class="card-title">模型評估排行榜 (Leaderboard)</h3>
+                <p class="card-subtitle">以測試集 R² Score 排序之完整量化數據指標</p>
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>模型名稱</th>
+                  <th>R² 判定係數</th>
+                  <th>均方誤差 (MSE)</th>
+                  <th>均方根誤差 (RMSE)</th>
+                  <th>挑選特徵數</th>
+                  <th>保留之特徵清單</th>
+                </tr>
+              </thead>
+              <tbody id="modelTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon">⚠️</div>
+              <div>
+                <h3 class="card-title">Top 10 離群值分析 (Residual Outliers)</h3>
+                <p class="card-subtitle">依據基準模型預測殘差絕對值 |y - ŷ| 排序前 10 大異常公司</p>
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>排名</th>
+                  <th>公司代號</th>
+                  <th>所在州別</th>
+                  <th>實際利潤 (Actual)</th>
+                  <th>預測利潤 (Predicted)</th>
+                  <th>殘差差距 (Residual)</th>
+                  <th>資料集分類</th>
+                </tr>
+              </thead>
+              <tbody id="outliersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Phase 6 -->
+      <section class="tab-content" id="phase6">
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon">🧮</div>
+              <div>
+                <h2 class="card-title">Phase 6: 部署與即時預測模擬器 (Live Profit Simulator)</h2>
+                <p class="card-subtitle">拖曳輸入營運支出參數，即時動態計算新創公司預期利潤</p>
+              </div>
+            </div>
+            <span class="badge-tag badge-green">⚡ 即時響應中</span>
+          </div>
+          <div class="simulator-layout">
+            <div class="sim-input-card">
+              <h3 style="font-size: 1.1rem; margin-bottom: 1.25rem; color: var(--text-main);">營運參數配置 (Operating Parameters)</h3>
+              <div class="form-group">
+                <label class="form-label" for="simRd"><span>研發支出 (R&D Spend)</span><span class="form-val-display" id="simRdVal">$75,000</span></label>
+                <input type="range" id="simRd" class="sim-range" min="10000" max="160000" step="1000" value="75000">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="simAdmin"><span>行政費用 (Administration)</span><span class="form-val-display" id="simAdminVal">$110,000</span></label>
+                <input type="range" id="simAdmin" class="sim-range" min="50000" max="150000" step="1000" value="110000">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="simMarketing"><span>行銷支出 (Marketing Spend)</span><span class="form-val-display" id="simMarketingVal">$200,000</span></label>
+                <input type="range" id="simMarketing" class="sim-range" min="0" max="400000" step="5000" value="200000">
+              </div>
+              <div class="form-group">
+                <label class="form-label"><span>設立州別 (State)</span></label>
+                <div class="state-select-group">
+                  <button type="button" class="state-radio-btn selected" data-state="California">California</button>
+                  <button type="button" class="state-radio-btn" data-state="Florida">Florida</button>
+                  <button type="button" class="state-radio-btn" data-state="New York">New York</button>
+                </div>
+              </div>
+            </div>
+            <div class="sim-output-card">
+              <div>
+                <span class="badge-tag badge-blue" style="margin-bottom: 0.5rem;">預測結果</span>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">預估獲利 (Estimated Profit)</div>
+                <div class="output-hero-val" id="simResultProfit">$130,500</div>
+                <div style="font-size: 0.8rem; color: var(--accent-emerald);">✔ 基於 Baseline LR 最優模型權重即時計算</div>
+              </div>
+              <div class="breakdown-list">
+                <div class="breakdown-row">
+                  <span class="breakdown-label">截距基準 (Base Intercept):</span>
+                  <span class="breakdown-val" id="bdIntercept" style="color: #60a5fa;">$123,645</span>
+                </div>
+                <div class="breakdown-row">
+                  <span class="breakdown-label">研發支出貢獻 (β = -0.3024):</span>
+                  <span class="breakdown-val neg" id="bdRd">-$22,680</span>
+                </div>
+                <div class="breakdown-row">
+                  <span class="breakdown-label">行政支出貢獻 (β = +0.1357):</span>
+                  <span class="breakdown-val pos" id="bdAdmin">+$14,927</span>
+                </div>
+                <div class="breakdown-row">
+                  <span class="breakdown-label">行銷支出貢獻 (β = +0.0852):</span>
+                  <span class="breakdown-val pos" id="bdMkt">+$17,040</span>
+                </div>
+                <div class="breakdown-row">
+                  <span class="breakdown-label">地理州別效應:</span>
+                  <span class="breakdown-val" id="bdState">$0 (Ref: CA)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ====================================================================
+       VIEW 2: Boston Housing (套用 Skill / Workflow 模組)
+       ==================================================================== -->
+  <div id="viewBoston" class="problem-view">
+    
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-badge-wrapper">
+        <span class="hero-badge" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #34d399;">
+          🏠 題目二：套用 Skill / Workflow 自動化模組 (No-Code / Low-Code API)
+        </span>
+      </div>
+      <h1 class="hero-title">
+        波士頓房價預測與<br>
+        <span class="hero-gradient-text" style="background: linear-gradient(135deg, #34d399 0%, #38bdf8 50%, #818cf8 100%); -webkit-background-clip: text;">自動化 Workflow Skill 模組</span>
+      </h1>
+      <p class="hero-subtitle">
+        直接套用符合 Coze / Dify / Auto-ML 規範的房價預測工作流程，整合資料標準化、集成隨機森林迴歸推論、95% 信心區間計算與特徵重要度解析。
+      </p>
+
+      <!-- Boston Housing KPI Grid -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label"><span>樣本規模</span><span>🏡</span></div>
+          <div class="kpi-value">506 筆</div>
+          <div class="kpi-sub">標準波士頓房價資料集</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label"><span>特徵維度</span><span>📐</span></div>
+          <div class="kpi-value">13 個</div>
+          <div class="kpi-sub">含 RM, LSTAT, PTRATIO 等</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label"><span>Workflow Skill R²</span><span>🌟</span></div>
+          <div class="kpi-value" style="color: #34d399;">0.8925</div>
+          <div class="kpi-sub">Random Forest 集成推論</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label"><span>預測 RMSE 誤差</span><span>📉</span></div>
+          <div class="kpi-value" style="color: #38bdf8;">$2,807</div>
+          <div class="kpi-sub">遠優於傳統線性迴歸</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Wrapper -->
+    <main class="main-wrapper">
+      
+      <!-- Visual Workflow DAG -->
       <div class="glass-card">
         <div class="card-header">
           <div class="card-title-group">
-            <div class="card-icon">📁</div>
+            <div class="card-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">🔄</div>
             <div>
-              <h2 class="card-title">Phase 2: 資料理解 (Data Understanding)</h2>
-              <p class="card-subtitle">50 家新創公司結構化資料探索與動態瀏覽</p>
+              <h2 class="card-title">自動化工作流程管線架構 (Workflow Pipeline DAG)</h2>
+              <p class="card-subtitle">符合 Dify / Coze / LangChain 規範之自動化特徵轉換與集成預測節點</p>
             </div>
           </div>
-          <div id="datasetRowCount" style="font-size: 0.85rem; color: var(--accent-cyan);">載入中...</div>
+          <span class="badge-tag badge-green">✔ Status: Pipeline Ready</span>
         </div>
 
-        <div class="table-filter-bar">
-          <input type="text" id="datasetSearch" class="search-input" placeholder="🔍 搜尋公司編號 (例: #10) 或 州別 (例: New York)...">
-          <div class="filter-pills">
-            <button class="btn-pill active" data-table-filter="all">全部 (50)</button>
-            <button class="btn-pill" data-table-filter="train">訓練集 (40)</button>
-            <button class="btn-pill" data-table-filter="test">測試集 (10)</button>
-            <button class="btn-pill" data-table-filter="outliers">Top 10 離群值</button>
+        <div class="workflow-dag">
+          <div class="workflow-node">
+            <div class="workflow-node-type">Input Node</div>
+            <div class="workflow-node-title">1. 資料動態擷取</div>
+            <div class="workflow-node-sub">支援外部 URL / CSV Ingestion</div>
+          </div>
+          <div class="workflow-arrow">➔</div>
+          <div class="workflow-node">
+            <div class="workflow-node-type">Transform Skill</div>
+            <div class="workflow-node-title">2. 缺失填補與標準化</div>
+            <div class="workflow-node-sub">Outlier Clamping & Scaling</div>
+          </div>
+          <div class="workflow-arrow">➔</div>
+          <div class="workflow-node">
+            <div class="workflow-node-type">Model Skill</div>
+            <div class="workflow-node-title">3. Ensemble ML 預測</div>
+            <div class="workflow-node-sub">Random Forest / Hedonic Skill</div>
+          </div>
+          <div class="workflow-arrow">➔</div>
+          <div class="workflow-node">
+            <div class="workflow-node-type">Analytics Skill</div>
+            <div class="workflow-node-title">4. 信心區間與可解釋性</div>
+            <div class="workflow-node-sub">95% CI & Feature Contributions</div>
+          </div>
+          <div class="workflow-arrow">➔</div>
+          <div class="workflow-node">
+            <div class="workflow-node-type">Output Node</div>
+            <div class="workflow-node-title">5. JSON API 響應</div>
+            <div class="workflow-node-sub">REST / Webhook 格式化回傳</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Housing Estimator & Feature Importance Chart -->
+      <div class="grid-2">
+        <!-- Live Estimator -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">🎛️</div>
+              <div>
+                <h3 class="card-title">房價即時試算器 (Live Boston Estimator)</h3>
+                <p class="card-subtitle">拖曳主要特徵滑桿，即時呼叫推論工作流程</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-input-card">
+            <!-- RM -->
+            <div class="form-group">
+              <label class="form-label" for="simBostonRm">
+                <span>平均每戶房間數 (RM)</span>
+                <span class="form-val-display" id="simBostonRmVal">6.28 間</span>
+              </label>
+              <input type="range" id="simBostonRm" class="sim-range" min="3.5" max="8.8" step="0.05" value="6.28">
+            </div>
+
+            <!-- LSTAT -->
+            <div class="form-group">
+              <label class="form-label" for="simBostonLstat">
+                <span>低收入人口比例 (LSTAT %)</span>
+                <span class="form-val-display" id="simBostonLstatVal">12.6%</span>
+              </label>
+              <input type="range" id="simBostonLstat" class="sim-range" min="1.5" max="38.0" step="0.5" value="12.65">
+            </div>
+
+            <!-- PTRATIO -->
+            <div class="form-group">
+              <label class="form-label" for="simBostonPtratio">
+                <span>學生教師比例 (PTRATIO)</span>
+                <span class="form-val-display" id="simBostonPtratioVal">18.5:1</span>
+              </label>
+              <input type="range" id="simBostonPtratio" class="sim-range" min="12.0" max="22.0" step="0.2" value="18.46">
+            </div>
+
+            <!-- CRIM -->
+            <div class="form-group">
+              <label class="form-label" for="simBostonCrim">
+                <span>人均犯罪率 (CRIM)</span>
+                <span class="form-val-display" id="simBostonCrimVal">3.61</span>
+              </label>
+              <input type="range" id="simBostonCrim" class="sim-range" min="0.0" max="50.0" step="0.5" value="3.61">
+            </div>
+          </div>
+
+          <!-- Price Output Box -->
+          <div class="sim-output-card" style="margin-top: 1.25rem;">
+            <div>
+              <span class="badge-tag badge-green" style="margin-bottom: 0.5rem;">預測中位房價 (MEDV)</span>
+              <div class="output-hero-val" id="bostonResultMedv" style="background: linear-gradient(135deg, #34d399 0%, #38bdf8 100%); -webkit-background-clip: text;">$22.5k</div>
+              <div id="bostonResultUsd" style="font-size: 1.1rem; color: #e5e7eb; font-weight: 600;">約 $22,500 美元</div>
+              <div id="bostonResultCI" style="font-size: 0.8rem; color: #9ca3af; margin-top: 0.35rem;">95% 信心區間: $17,000 ~ $28,000</div>
+            </div>
+
+            <div class="breakdown-list">
+              <div class="breakdown-row">
+                <span class="breakdown-label">房間數效應 (RM 偏離基準):</span>
+                <span class="breakdown-val" id="bostonImpactRm">+$0</span>
+              </div>
+              <div class="breakdown-row">
+                <span class="breakdown-label">低收入比例效應 (LSTAT 影響):</span>
+                <span class="breakdown-val" id="bostonImpactLstat">+$0</span>
+              </div>
+              <div class="breakdown-row">
+                <span class="breakdown-label">學區師生比效應 (PTRATIO 影響):</span>
+                <span class="breakdown-val" id="bostonImpactPtratio">+$0</span>
+              </div>
+              <div class="breakdown-row">
+                <span class="breakdown-label">犯罪率效應 (CRIM 影響):</span>
+                <span class="breakdown-val" id="bostonImpactCrim">+$0</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="table-responsive" style="max-height: 480px;">
+        <!-- Feature Importance Chart -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon" style="background: rgba(139, 92, 246, 0.15); color: #c084fc;">📊</div>
+              <div>
+                <h3 class="card-title">隨機森林特徵重要度分析 (%)</h3>
+                <p class="card-subtitle">RM (房間數) 與 LSTAT (低收入比例) 主導 81% 房價變異</p>
+              </div>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="bostonImportanceCanvas"></canvas>
+          </div>
+          <div style="margin-top: 1rem; font-size: 0.82rem; color: var(--text-muted); line-height: 1.6;">
+            💡 <strong>解讀結論</strong>：在波士頓房價模型中，<strong>RM（每戶房間數）</strong> 的貢獻度高達 <strong>50.4%</strong>，<strong>LSTAT（低收入階層比例）</strong> 佔 <strong>31.0%</strong>，兩者合計決定了超過八成的房價波動。
+          </div>
+        </div>
+      </div>
+
+      <!-- Boston Dataset Explorer -->
+      <div class="glass-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">📋</div>
+            <div>
+              <h3 class="card-title">Boston Housing 資料集檢視器 (前 100 筆預覽)</h3>
+              <p class="card-subtitle">包含 CRIM, RM, AGE, DIS, TAX, PTRATIO, LSTAT 與 MEDV</p>
+            </div>
+          </div>
+          <span id="bostonDatasetCount" class="badge-tag badge-blue">共 506 筆資料</span>
+        </div>
+        <div class="table-responsive" style="max-height: 440px;">
           <table class="modern-table">
             <thead>
               <tr>
                 <th>編號</th>
-                <th>研發支出 (R&D)</th>
-                <th>行政費用 (Admin)</th>
-                <th>行銷支出 (Marketing)</th>
-                <th>設立州別 (State)</th>
-                <th>實際利潤 (Profit)</th>
-                <th>預測利潤 (Predicted)</th>
-                <th>殘差 (Residual)</th>
+                <th>犯罪率 (CRIM)</th>
+                <th>房間數 (RM)</th>
+                <th>屋齡老舊比 (AGE)</th>
+                <th>就業中心距離 (DIS)</th>
+                <th>財產稅率 (TAX)</th>
+                <th>師生比 (PTRATIO)</th>
+                <th>低收入比例 (LSTAT)</th>
+                <th>中位房價 (MEDV)</th>
                 <th>資料標籤</th>
               </tr>
             </thead>
-            <tbody id="datasetTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================================================================
-         Phase 3: Data Preparation
-         ==================================================================== -->
-    <section class="tab-content" id="phase3">
-      <div class="glass-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon">⚙️</div>
-            <div>
-              <h2 class="card-title">Phase 3: 資料準備 (Data Preparation)</h2>
-              <p class="card-subtitle">類別特徵編碼策略與共線性 (Multicollinearity) 檢驗</p>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1.5rem; background: rgba(59, 130, 246, 0.08); padding: 1.25rem; border-radius: var(--radius-md); border-left: 4px solid var(--accent-blue);">
-          <h4 style="color: #60a5fa; margin-bottom: 0.35rem;">📌 虛擬變數陷阱 (Dummy Variable Trap) 處理</h4>
-          <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">
-            本專案採用 <strong>Model B (drop_first=True)</strong> 策略：將類別變數 <code>State</code>（California, Florida, New York）轉為 2 個虛擬變數（保留 Florida 與 New York，California 作為基準參考組），並在回歸模型中保留截距項（Intercept），完美避免多元共線性陷阱。
-          </p>
-        </div>
-
-        <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-main);">變異數膨脹因子檢定 (Variance Inflation Factor, VIF)</h3>
-        <div class="grid-3" id="vifCardsContainer">
-          <!-- Dynamically populated -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================================================================
-         Phase 4: Modeling
-         ==================================================================== -->
-    <section class="tab-content" id="phase4">
-      <div class="glass-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon">🤖</div>
-            <div>
-              <h2 class="card-title">Phase 4: 模型構建 (Modeling)</h2>
-              <p class="card-subtitle">比較 6 種特徵選擇演算法與模型係數權重</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <!-- Left: Feature Coefficients Chart -->
-          <div>
-            <h3 style="font-size: 1rem; margin-bottom: 0.8rem; color: var(--text-main);">Baseline LR 各特徵回歸係數 (β Weights)</h3>
-            <div class="chart-wrapper" style="min-height: 320px;">
-              <canvas id="coefChartCanvas"></canvas>
-            </div>
-          </div>
-
-          <!-- Right: Method Explanations -->
-          <div style="display: flex; flex-direction: column; gap: 0.9rem;">
-            <div style="background: rgba(10, 14, 23, 0.4); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-              <h4 style="color: #60a5fa; font-size: 0.95rem;">1. Baseline Linear Regression (基準線性迴歸)</h4>
-              <p style="font-size: 0.82rem; color: var(--text-muted);">使用全部 5 個輸入特徵進行 OLS 擬合，提供基準表現指標。</p>
-            </div>
-
-            <div style="background: rgba(10, 14, 23, 0.4); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-              <h4 style="color: #38bdf8; font-size: 0.95rem;">2. LassoCV (L1 正則化) & ElasticNetCV (L1 + L2)</h4>
-              <p style="font-size: 0.82rem; color: var(--text-muted);">透過懲罰項將不具預測力之係數收縮至 0。交叉驗證下懲罰較重，呈現常數基準模型。</p>
-            </div>
-
-            <div style="background: rgba(10, 14, 23, 0.4); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-              <h4 style="color: #c084fc; font-size: 0.95rem;">3. RFECV & Sequential Forward Selection (SFS)</h4>
-              <p style="font-size: 0.82rem; color: var(--text-muted);">Wrapper 包裝法：遞迴特徵消除與前向貪婪演算法，透過 5-Fold CV 尋求最佳子集。</p>
-            </div>
-
-            <div style="background: rgba(10, 14, 23, 0.4); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-              <h4 style="color: #34d399; font-size: 0.95rem;">4. Exhaustive Feature Selection (EFS 窮舉特徵選擇)</h4>
-              <p style="font-size: 0.82rem; color: var(--text-muted);">窮舉所有 2⁵-1 = 31 種特徵組合，以 5-Fold CV 均方誤差評分，找出全局最優特徵子集。</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================================================================
-         Phase 5: Evaluation & Outliers
-         ==================================================================== -->
-    <section class="tab-content" id="phase5">
-      <!-- Section 1: Charts -->
-      <div class="grid-2">
-        <!-- Actual vs Predicted Scatter -->
-        <div class="glass-card">
-          <div class="card-header">
-            <div class="card-title-group">
-              <div class="card-icon">📉</div>
-              <div>
-                <h3 class="card-title">預測值 vs 實際值散佈圖</h3>
-                <p class="card-subtitle">含理想迴歸線 (y = x) 與離群值標記</p>
-              </div>
-            </div>
-            <div class="chart-controls">
-              <button class="btn-pill active" data-scatter-mode="all">全部 50 筆</button>
-              <button class="btn-pill" data-scatter-mode="test">僅測試集 (10 筆)</button>
-            </div>
-          </div>
-          <div class="chart-wrapper">
-            <canvas id="scatterChartCanvas"></canvas>
-          </div>
-        </div>
-
-        <!-- Model Comparison Bar Chart -->
-        <div class="glass-card">
-          <div class="card-header">
-            <div class="card-title-group">
-              <div class="card-icon">📊</div>
-              <div>
-                <h3 class="card-title">6 大模型成效評估比較</h3>
-                <p class="card-subtitle">測試集判定係數與均方根誤差指標</p>
-              </div>
-            </div>
-            <div class="chart-controls">
-              <button class="btn-pill active" data-metric-mode="r2">R² 判定係數</button>
-              <button class="btn-pill" data-metric-mode="mse">RMSE 誤差 ($)</button>
-            </div>
-          </div>
-          <div class="chart-wrapper">
-            <canvas id="modelChartCanvas"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- Section 2: Model Comparison Table -->
-      <div class="glass-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon">📋</div>
-            <div>
-              <h3 class="card-title">模型評估排行榜 (Model Evaluation Leaderboard)</h3>
-              <p class="card-subtitle">以測試集 R² Score 排序之完整量化數據指標</p>
-            </div>
-          </div>
-        </div>
-        <div class="table-responsive">
-          <table class="modern-table">
-            <thead>
-              <tr>
-                <th>模型名稱</th>
-                <th>R² 判定係數</th>
-                <th>均方誤差 (MSE)</th>
-                <th>均方根誤差 (RMSE)</th>
-                <th>挑選特徵數</th>
-                <th>保留之特徵清單</th>
-              </tr>
-            </thead>
-            <tbody id="modelTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
+            <tbody id="bostonTableBody"></tbody>
           </table>
         </div>
       </div>
 
-      <!-- Section 3: Top 10 Outliers -->
-      <div class="glass-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon">⚠️</div>
-            <div>
-              <h3 class="card-title">Top 10 離群值分析 (Residual Outliers)</h3>
-              <p class="card-subtitle">依據基準模型預測殘差絕對值 |y - ŷ| 排序前 10 大異常公司</p>
-            </div>
-          </div>
-        </div>
-        <div class="table-responsive">
-          <table class="modern-table">
-            <thead>
-              <tr>
-                <th>排名</th>
-                <th>公司代號</th>
-                <th>所在州別</th>
-                <th>實際利潤 (Actual)</th>
-                <th>預測利潤 (Predicted)</th>
-                <th>殘差差距 (Residual)</th>
-                <th>資料集分類</th>
-              </tr>
-            </thead>
-            <tbody id="outliersTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- ====================================================================
-         Phase 6: Deployment & Interactive Simulator
-         ==================================================================== -->
-    <section class="tab-content" id="phase6">
-      <div class="glass-card">
-        <div class="card-header">
-          <div class="card-title-group">
-            <div class="card-icon">🧮</div>
-            <div>
-              <h2 class="card-title">Phase 6: 部署與即時預測模擬器 (Live Profit Simulator)</h2>
-              <p class="card-subtitle">拖曳輸入營運支出參數，即時動態計算新創公司預期利潤</p>
-            </div>
-          </div>
-          <span class="badge-tag badge-green">⚡ 即時響應中</span>
-        </div>
-
-        <div class="simulator-layout">
-          <!-- Input Controls -->
-          <div class="sim-input-card">
-            <h3 style="font-size: 1.1rem; margin-bottom: 1.25rem; color: var(--text-main);">營運參數配置 (Operating Parameters)</h3>
-
-            <!-- R&D Spend -->
-            <div class="form-group">
-              <label class="form-label" for="simRd">
-                <span>研發支出 (R&D Spend)</span>
-                <span class="form-val-display" id="simRdVal">$75,000</span>
-              </label>
-              <input type="range" id="simRd" class="sim-range" min="10000" max="160000" step="1000" value="75000">
-            </div>
-
-            <!-- Admin Spend -->
-            <div class="form-group">
-              <label class="form-label" for="simAdmin">
-                <span>行政費用 (Administration)</span>
-                <span class="form-val-display" id="simAdminVal">$110,000</span>
-              </label>
-              <input type="range" id="simAdmin" class="sim-range" min="50000" max="150000" step="1000" value="110000">
-            </div>
-
-            <!-- Marketing Spend -->
-            <div class="form-group">
-              <label class="form-label" for="simMarketing">
-                <span>行銷支出 (Marketing Spend)</span>
-                <span class="form-val-display" id="simMarketingVal">$200,000</span>
-              </label>
-              <input type="range" id="simMarketing" class="sim-range" min="0" max="400000" step="5000" value="200000">
-            </div>
-
-            <!-- State Selector -->
-            <div class="form-group">
-              <label class="form-label">
-                <span>設立州別 (State)</span>
-              </label>
-              <div class="state-select-group">
-                <button type="button" class="state-radio-btn selected" data-state="California">California</button>
-                <button type="button" class="state-radio-btn" data-state="Florida">Florida</button>
-                <button type="button" class="state-radio-btn" data-state="New York">New York</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Output Preview -->
-          <div class="sim-output-card">
-            <div>
-              <span class="badge-tag badge-blue" style="margin-bottom: 0.5rem;">預測結果</span>
-              <div style="color: var(--text-muted); font-size: 0.9rem;">預估獲利 (Estimated Profit)</div>
-              <div class="output-hero-val" id="simResultProfit">$130,500</div>
-              <div style="font-size: 0.8rem; color: var(--accent-emerald);">✔ 基於 Baseline LR 最優模型權重即時計算</div>
-            </div>
-
-            <!-- Detailed Breakdown -->
-            <div class="breakdown-list">
-              <div class="breakdown-row">
-                <span class="breakdown-label">截距基準 (Base Intercept):</span>
-                <span class="breakdown-val" id="bdIntercept" style="color: #60a5fa;">$123,645</span>
-              </div>
-              <div class="breakdown-row">
-                <span class="breakdown-label">研發支出貢獻 (β = -0.3024):</span>
-                <span class="breakdown-val neg" id="bdRd">-$22,680</span>
-              </div>
-              <div class="breakdown-row">
-                <span class="breakdown-label">行政支出貢獻 (β = +0.1357):</span>
-                <span class="breakdown-val pos" id="bdAdmin">+$14,927</span>
-              </div>
-              <div class="breakdown-row">
-                <span class="breakdown-label">行銷支出貢獻 (β = +0.0852):</span>
-                <span class="breakdown-val pos" id="bdMkt">+$17,040</span>
-              </div>
-              <div class="breakdown-row">
-                <span class="breakdown-label">地理州別效應:</span>
-                <span class="breakdown-val" id="bdState">$0 (Ref: CA)</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
+    </main>
+  </div>
 
   <!-- Footer -->
   <footer class="footer">
     <div class="footer-links">
-      <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub Project</a>
-      <a href="main.py">查看原始 Python 腳本 (main.py)</a>
-      <a href="actual_vs_predicted.png" target="_blank">下載高解析度回歸圖 (PNG)</a>
+      <a href="https://github.com/a30099/aiot_1014DoInClass" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+      <a href="main.py">50 Startups Python 主程式 (main.py)</a>
+      <a href="boston_skill_workflow.py">Boston Housing Skill 模組 (boston_skill_workflow.py)</a>
+      <a href="actual_vs_predicted.png" target="_blank">下載 50 Startups 回歸圖 (PNG)</a>
     </div>
-    <p>© 2026 50 Startups Machine Learning Research Project | CRISP-DM Framework</p>
+    <p>© 2026 AIoT Machine Learning Research Project | 7115056039 張嘉晏</p>
   </footer>
 
   <!-- Fallback Data and Application Script -->
