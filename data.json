@@ -1,0 +1,711 @@
+{
+  "vif": [
+    {
+      "feature": "R&D Spend",
+      "vif": 1.096221532408009
+    },
+    {
+      "feature": "Administration",
+      "vif": 1.043331684202968
+    },
+    {
+      "feature": "Marketing Spend",
+      "vif": 1.0913980943158845
+    },
+    {
+      "feature": "State_Florida",
+      "vif": 1.5071619359923627
+    },
+    {
+      "feature": "State_New York",
+      "vif": 1.5235745019825038
+    }
+  ],
+  "model_eval": [
+    {
+      "name": "Baseline LR",
+      "r2": 0.33408276870793885,
+      "mse": 1106921924.5001216,
+      "rmse": 33270.43619341534,
+      "num_features": 5,
+      "features": [
+        "R&D Spend",
+        "Administration",
+        "Marketing Spend",
+        "State_Florida",
+        "State_New York"
+      ]
+    },
+    {
+      "name": "LassoCV",
+      "r2": -0.005394942550866144,
+      "mse": 1671219263.2885869,
+      "rmse": 40880.54871560051,
+      "num_features": 0,
+      "features": []
+    },
+    {
+      "name": "RFECV",
+      "r2": -0.057414907637117985,
+      "mse": 1757689528.9009933,
+      "rmse": 41924.80803654315,
+      "num_features": 1,
+      "features": [
+        "State_Florida"
+      ]
+    },
+    {
+      "name": "SFS (Forward)",
+      "r2": -0.06199102444626181,
+      "mse": 1765296185.9855182,
+      "rmse": 42015.4279519502,
+      "num_features": 2,
+      "features": [
+        "Administration",
+        "State_Florida"
+      ]
+    },
+    {
+      "name": "ElasticNetCV",
+      "r2": -0.005394942550866144,
+      "mse": 1671219263.2885869,
+      "rmse": 40880.54871560051,
+      "num_features": 0,
+      "features": []
+    },
+    {
+      "name": "Exhaustive FS",
+      "r2": -0.057414907637117985,
+      "mse": 1757689528.9009933,
+      "rmse": 41924.80803654315,
+      "num_features": 1,
+      "features": [
+        "State_Florida"
+      ]
+    }
+  ],
+  "baseline_weights": {
+    "intercept": 123644.67,
+    "coefs": {
+      "R&D Spend": -0.3024,
+      "Administration": 0.1357,
+      "Marketing Spend": 0.0852,
+      "State_Florida": -9060.6208,
+      "State_New York": -5127.3527
+    }
+  },
+  "records": [
+    {
+      "id": 0,
+      "rd_spend": 66181.02,
+      "admin": 146958.46,
+      "marketing": 12571.67,
+      "state": "New York",
+      "profit": 187146.93,
+      "pred_profit": 119525.95,
+      "residual": 67620.99,
+      "is_test": false,
+      "is_top10_outlier": true
+    },
+    {
+      "id": 1,
+      "rd_spend": 152607.15,
+      "admin": 127513.28,
+      "marketing": 254564.16,
+      "state": "New York",
+      "profit": 112661.74,
+      "pred_profit": 111360.9,
+      "residual": 1300.84,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 2,
+      "rd_spend": 119799.09,
+      "admin": 143949.89,
+      "marketing": 125742.39,
+      "state": "Florida",
+      "profit": 71732.67,
+      "pred_profit": 108608.96,
+      "residual": 36876.29,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 3,
+      "rd_spend": 99798.77,
+      "admin": 139482.74,
+      "marketing": 203428.28,
+      "state": "California",
+      "profit": 189400.59,
+      "pred_profit": 129726.37,
+      "residual": 59674.22,
+      "is_test": false,
+      "is_top10_outlier": true
+    },
+    {
+      "id": 4,
+      "rd_spend": 33402.8,
+      "admin": 109790.0,
+      "marketing": 363026.59,
+      "state": "California",
+      "profit": 184467.1,
+      "pred_profit": 159363.24,
+      "residual": 25103.86,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 5,
+      "rd_spend": 33399.18,
+      "admin": 142187.42,
+      "marketing": 99716.89,
+      "state": "New York",
+      "profit": 119326.95,
+      "pred_profit": 136211.85,
+      "residual": 16884.89,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 6,
+      "rd_spend": 18712.54,
+      "admin": 58849.25,
+      "marketing": 164153.17,
+      "state": "California",
+      "profit": 171221.81,
+      "pred_profit": 139954.26,
+      "residual": 31267.56,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 7,
+      "rd_spend": 139926.42,
+      "admin": 69598.29,
+      "marketing": 302220.46,
+      "state": "California",
+      "profit": 60193.14,
+      "pred_profit": 116519.0,
+      "residual": 56325.86,
+      "is_test": false,
+      "is_top10_outlier": true
+    },
+    {
+      "id": 8,
+      "rd_spend": 100167.25,
+      "admin": 54522.73,
+      "marketing": 91519.27,
+      "state": "Florida",
+      "profit": 74619.42,
+      "pred_profit": 99491.06,
+      "residual": 24871.64,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 9,
+      "rd_spend": 116210.89,
+      "admin": 82533.03,
+      "marketing": 30791.96,
+      "state": "Florida",
+      "profit": 142057.25,
+      "pred_profit": 93270.8,
+      "residual": 48786.45,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 10,
+      "rd_spend": 13087.67,
+      "admin": 88867.73,
+      "marketing": 115900.58,
+      "state": "Florida",
+      "profit": 165465.78,
+      "pred_profit": 132560.33,
+      "residual": 32905.45,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 11,
+      "rd_spend": 155486.48,
+      "admin": 77134.9,
+      "marketing": 64488.51,
+      "state": "Florida",
+      "profit": 167011.89,
+      "pred_profit": 83531.6,
+      "residual": 83480.29,
+      "is_test": false,
+      "is_top10_outlier": true
+    },
+    {
+      "id": 12,
+      "rd_spend": 134866.4,
+      "admin": 132873.75,
+      "marketing": 371879.06,
+      "state": "New York",
+      "profit": 94721.3,
+      "pred_profit": 127443.3,
+      "residual": 32722.0,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 13,
+      "rd_spend": 41850.87,
+      "admin": 85675.33,
+      "marketing": 323248.15,
+      "state": "Florida",
+      "profit": 172043.22,
+      "pred_profit": 141087.1,
+      "residual": 30956.11,
+      "is_test": true,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 14,
+      "rd_spend": 37273.75,
+      "admin": 78093.45,
+      "marketing": 253361.5,
+      "state": "California",
+      "profit": 166148.55,
+      "pred_profit": 144551.05,
+      "residual": 21597.5,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 15,
+      "rd_spend": 37510.68,
+      "admin": 104269.61,
+      "marketing": 348584.24,
+      "state": "New York",
+      "profit": 179701.6,
+      "pred_profit": 151014.48,
+      "residual": 28687.12,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 16,
+      "rd_spend": 55636.34,
+      "admin": 64092.42,
+      "marketing": 321468.83,
+      "state": "California",
+      "profit": 155654.5,
+      "pred_profit": 142897.95,
+      "residual": 12756.55,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 17,
+      "rd_spend": 88713.46,
+      "admin": 130219.7,
+      "marketing": 74628.02,
+      "state": "California",
+      "profit": 137038.12,
+      "pred_profit": 120852.4,
+      "residual": 16185.72,
+      "is_test": true,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 18,
+      "rd_spend": 74791.75,
+      "admin": 57455.06,
+      "marketing": 357023.6,
+      "state": "California",
+      "profit": 122909.86,
+      "pred_profit": 139232.61,
+      "residual": 16322.75,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 19,
+      "rd_spend": 53684.37,
+      "admin": 148688.69,
+      "marketing": 215736.9,
+      "state": "Florida",
+      "profit": 89565.24,
+      "pred_profit": 136907.48,
+      "residual": 47342.24,
+      "is_test": true,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 20,
+      "rd_spend": 101777.93,
+      "admin": 127224.48,
+      "marketing": 322976.06,
+      "state": "Florida",
+      "profit": 180421.35,
+      "pred_profit": 128583.76,
+      "residual": 51837.59,
+      "is_test": false,
+      "is_top10_outlier": true
+    },
+    {
+      "id": 21,
+      "rd_spend": 30924.08,
+      "admin": 69871.57,
+      "marketing": 358436.52,
+      "state": "New York",
+      "profit": 185786.21,
+      "pred_profit": 149175.6,
+      "residual": 36610.62,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 22,
+      "rd_spend": 53821.7,
+      "admin": 50552.21,
+      "marketing": 127201.39,
+      "state": "New York",
+      "profit": 75427.36,
+      "pred_profit": 119937.7,
+      "residual": 44510.34,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 23,
+      "rd_spend": 64954.28,
+      "admin": 131546.14,
+      "marketing": 44020.77,
+      "state": "Florida",
+      "profit": 78858.22,
+      "pred_profit": 116549.56,
+      "residual": 37691.34,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 24,
+      "rd_spend": 78410.5,
+      "admin": 120685.73,
+      "marketing": 91174.07,
+      "state": "California",
+      "profit": 107698.2,
+      "pred_profit": 124082.57,
+      "residual": 16384.37,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 25,
+      "rd_spend": 127776.39,
+      "admin": 122900.72,
+      "marketing": 170843.12,
+      "state": "New York",
+      "profit": 101747.86,
+      "pred_profit": 111113.39,
+      "residual": 9365.52,
+      "is_test": true,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 26,
+      "rd_spend": 39951.07,
+      "admin": 127127.03,
+      "marketing": 327205.91,
+      "state": "Florida",
+      "profit": 189113.19,
+      "pred_profit": 147625.64,
+      "residual": 41487.56,
+      "is_test": true,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 27,
+      "rd_spend": 87135.17,
+      "admin": 57404.47,
+      "marketing": 344292.23,
+      "state": "Florida",
+      "profit": 58148.04,
+      "pred_profit": 125348.6,
+      "residual": 67200.55,
+      "is_test": false,
+      "is_top10_outlier": true
+    },
+    {
+      "id": 28,
+      "rd_spend": 98862.19,
+      "admin": 85846.57,
+      "marketing": 2780.85,
+      "state": "Florida",
+      "profit": 32892.06,
+      "pred_profit": 96581.04,
+      "residual": 63688.98,
+      "is_test": false,
+      "is_top10_outlier": true
+    },
+    {
+      "id": 29,
+      "rd_spend": 16967.56,
+      "admin": 61586.91,
+      "marketing": 204298.92,
+      "state": "California",
+      "profit": 109022.99,
+      "pred_profit": 144272.28,
+      "residual": 35249.29,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 30,
+      "rd_spend": 101131.73,
+      "admin": 136310.34,
+      "marketing": 166964.4,
+      "state": "Florida",
+      "profit": 58611.63,
+      "pred_profit": 116726.84,
+      "residual": 58115.21,
+      "is_test": true,
+      "is_top10_outlier": true
+    },
+    {
+      "id": 31,
+      "rd_spend": 35578.62,
+      "admin": 112329.81,
+      "marketing": 88843.12,
+      "state": "Florida",
+      "profit": 88635.01,
+      "pred_profit": 126640.42,
+      "residual": 38005.42,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 32,
+      "rd_spend": 19757.74,
+      "admin": 83089.8,
+      "marketing": 47946.15,
+      "state": "Florida",
+      "profit": 149067.28,
+      "pred_profit": 123972.22,
+      "residual": 25095.06,
+      "is_test": true,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 33,
+      "rd_spend": 152332.83,
+      "admin": 56355.84,
+      "marketing": 135046.07,
+      "state": "Florida",
+      "profit": 145350.39,
+      "pred_profit": 87673.01,
+      "residual": 57677.38,
+      "is_test": false,
+      "is_top10_outlier": true
+    },
+    {
+      "id": 34,
+      "rd_spend": 154844.8,
+      "admin": 81098.23,
+      "marketing": 377163.88,
+      "state": "New York",
+      "profit": 79289.73,
+      "pred_profit": 114823.88,
+      "residual": 35534.15,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 35,
+      "rd_spend": 131259.6,
+      "admin": 82518.33,
+      "marketing": 129281.17,
+      "state": "New York",
+      "profit": 116806.44,
+      "pred_profit": 101038.91,
+      "residual": 15767.53,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 36,
+      "rd_spend": 55692.07,
+      "admin": 122960.62,
+      "marketing": 207516.25,
+      "state": "Florida",
+      "profit": 111410.25,
+      "pred_profit": 132107.77,
+      "residual": 20697.52,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 37,
+      "rd_spend": 24650.82,
+      "admin": 113755.75,
+      "marketing": 281207.58,
+      "state": "California",
+      "profit": 131813.22,
+      "pred_profit": 155580.38,
+      "residual": 23767.16,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 38,
+      "rd_spend": 112634.95,
+      "admin": 138721.27,
+      "marketing": 145451.84,
+      "state": "New York",
+      "profit": 70073.89,
+      "pred_profit": 115677.13,
+      "residual": 45603.24,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 39,
+      "rd_spend": 76022.87,
+      "admin": 97221.49,
+      "marketing": 388712.83,
+      "state": "Florida",
+      "profit": 124379.34,
+      "pred_profit": 137896.61,
+      "residual": 13517.27,
+      "is_test": true,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 40,
+      "rd_spend": 28305.74,
+      "admin": 61959.42,
+      "marketing": 384978.92,
+      "state": "New York",
+      "profit": 186622.86,
+      "pred_profit": 151153.56,
+      "residual": 35469.3,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 41,
+      "rd_spend": 84276.54,
+      "admin": 121324.48,
+      "marketing": 100712.92,
+      "state": "New York",
+      "profit": 107878.74,
+      "pred_profit": 118080.5,
+      "residual": 10201.75,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 42,
+      "rd_spend": 15158.28,
+      "admin": 126078.5,
+      "marketing": 198899.4,
+      "state": "California",
+      "profit": 174975.81,
+      "pred_profit": 153114.25,
+      "residual": 21861.56,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 43,
+      "rd_spend": 146398.06,
+      "admin": 106127.72,
+      "marketing": 120351.32,
+      "state": "Florida",
+      "profit": 99503.1,
+      "pred_profit": 94972.66,
+      "residual": 4530.44,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 44,
+      "rd_spend": 48817.0,
+      "admin": 127096.72,
+      "marketing": 113936.2,
+      "state": "Florida",
+      "profit": 86012.55,
+      "pred_profit": 126778.96,
+      "residual": 40766.41,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 45,
+      "rd_spend": 109378.34,
+      "admin": 99379.56,
+      "marketing": 14754.78,
+      "state": "California",
+      "profit": 133216.54,
+      "pred_profit": 105318.61,
+      "residual": 27897.92,
+      "is_test": true,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 46,
+      "rd_spend": 56756.66,
+      "admin": 102273.28,
+      "marketing": 243825.73,
+      "state": "California",
+      "profit": 137027.85,
+      "pred_profit": 141130.25,
+      "residual": 4102.4,
+      "is_test": false,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 47,
+      "rd_spend": 88010.2,
+      "admin": 92754.1,
+      "marketing": 201071.61,
+      "state": "Florida",
+      "profit": 168266.81,
+      "pred_profit": 117686.24,
+      "residual": 50580.57,
+      "is_test": false,
+      "is_top10_outlier": true
+    },
+    {
+      "id": 48,
+      "rd_spend": 92006.54,
+      "admin": 52541.91,
+      "marketing": 20591.5,
+      "state": "Florida",
+      "profit": 66829.64,
+      "pred_profit": 95649.65,
+      "residual": 28820.01,
+      "is_test": true,
+      "is_top10_outlier": false
+    },
+    {
+      "id": 49,
+      "rd_spend": 37728.17,
+      "admin": 60789.14,
+      "marketing": 111458.59,
+      "state": "California",
+      "profit": 109870.94,
+      "pred_profit": 129980.36,
+      "residual": 20109.41,
+      "is_test": false,
+      "is_top10_outlier": false
+    }
+  ],
+  "top_10_indices": [
+    11,
+    0,
+    27,
+    28,
+    3,
+    30,
+    33,
+    7,
+    20,
+    47
+  ]
+}
